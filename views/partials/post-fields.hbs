@@ -1,0 +1,151 @@
+<div class="field">
+	<label class="label" for="f-title">Title</label>
+	<input
+		class="input"
+		id="f-title"
+		name="title"
+		value="{{values.title}}"
+		required
+		maxlength="300"
+		autofocus
+	/>
+	<p class="hint">Unique across posts. Changing it changes the URL slug.</p>
+</div>
+
+<div class="field-row">
+	<div class="field">
+		<label class="label" for="f-status">Status</label>
+		<select class="select" id="f-status" name="status">
+			{{#each statuses}}
+				<option value="{{this}}" {{#if (eq this values.status)}}selected{{/if}}>
+					{{statusLabel this}}
+				</option>
+			{{/each}}
+		</select>
+	</div>
+
+	<div class="field">
+		<label class="label" for="f-type">Type</label>
+		<select class="select" id="f-type" name="type">
+			<option value="">— No type —</option>
+			{{#each options.types}}
+				<option value="{{this.id}}" {{selected this.id values.type}}>
+					{{this.name}}
+				</option>
+			{{/each}}
+		</select>
+		<p class="hint">
+			Types in
+			<code>{{join markdownTypes ", "}}</code>
+			render as Markdown; everything else is shown as plain text.
+		</p>
+	</div>
+</div>
+
+<div class="field">
+	<label class="label" for="f-category">Category</label>
+	<select
+		class="select"
+		id="f-category"
+		name="category"
+		data-picker="categories"
+	>
+		<option value="">— No category —</option>
+		{{#each options.categories}}
+			<option value="{{this.id}}" {{selected this.id values.category}}>
+				{{this.name}}
+			</option>
+		{{/each}}
+	</select>
+</div>
+
+<div class="field">
+	<label class="label" for="f-content">Content</label>
+	<textarea
+		class="input input--code"
+		id="f-content"
+		name="content"
+		rows="16"
+		spellcheck="false"
+	>{{values.content}}</textarea>
+</div>
+
+<div class="field">
+	<label class="label" for="f-notes">Notes</label>
+	<textarea
+		class="input"
+		id="f-notes"
+		name="notes"
+		rows="3"
+		placeholder="Private notes — never shown with the content"
+	>{{values.notes}}</textarea>
+</div>
+
+<div class="field">
+	<label class="label" for="f-tags">Tags</label>
+	<input
+		class="input"
+		id="f-tags"
+		name="tags"
+		value="{{tagNames}}"
+		placeholder="comma separated — unknown names create the tag"
+	/>
+</div>
+
+<fieldset class="fieldset">
+	<legend class="label">Related posts</legend>
+	<select
+		class="select select--multi"
+		id="f-related-posts"
+		name="relations[posts]"
+		multiple
+		size="6"
+		data-picker="posts"
+		data-exclude="{{values.id}}"
+	>
+		{{#each options.posts}}
+			<option value="{{this.id}}" {{selected this.id values.relations.posts}}>
+				{{this.title}}
+			</option>
+		{{/each}}
+	</select>
+	<p class="hint">Ctrl/Cmd-click to select more than one.</p>
+</fieldset>
+
+<fieldset class="fieldset">
+	<legend class="label">Related files</legend>
+	<select
+		class="select select--multi"
+		id="f-related-files"
+		name="relations[files]"
+		multiple
+		size="6"
+		data-picker="files"
+	>
+		{{#each options.files}}
+			<option value="{{this.id}}" {{selected this.id values.relations.files}}>
+				{{this.original_name}}
+			</option>
+		{{/each}}
+	</select>
+</fieldset>
+
+<div class="field">
+	<label class="label" for="f-photo">Cover image</label>
+	<input class="input" type="file" id="f-photo" name="file" accept="image/*" />
+	{{#if photoPreview}}
+		<p class="hint">
+			Current cover:
+			<code>{{photoPreview}}</code>. Uploading a new file replaces it.
+		</p>
+	{{else}}
+		<p class="hint">Optional. Stored as a file and deduplicated by content.</p>
+	{{/if}}
+</div>
+
+<div class="form-actions">
+	<button class="btn btn--primary" type="submit">
+		{{#if values.id}}Save changes{{else}}Create post{{/if}}
+	</button>
+	<a class="btn btn--ghost" href="/v1/web/posts">Cancel</a>
+</div>

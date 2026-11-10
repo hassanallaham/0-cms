@@ -1,0 +1,33 @@
+<form class="filters" method="get" action="{{action}}">
+	<input
+		class="input"
+		type="search"
+		name="q"
+		value="{{query.q}}"
+		placeholder="{{placeholder}}"
+		aria-label="Search"
+	/>
+
+	{{#each filters}}
+		<select class="select" name="{{this.name}}" aria-label="{{this.label}}">
+			<option value="">{{this.label}}</option>
+			{{#each this.options}}
+				<option value="{{this.value}}" {{selected this.value ../selected}}>
+					{{this.label}}
+				</option>
+			{{/each}}
+		</select>
+	{{/each}}
+
+	<select class="select" name="sort" aria-label="Sort order">
+		<option value="">Default order</option>
+		{{#each sortOptions}}
+			<option value="{{this.value}}" {{selected this.value ../query.sort}}>
+				{{this.label}}
+			</option>
+		{{/each}}
+	</select>
+
+	<button class="btn" type="submit">Filter</button>
+	<a class="btn btn--ghost" href="{{action}}">Reset</a>
+</form>

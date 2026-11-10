@@ -1,0 +1,13 @@
+{{#if errors.length}}
+	<div class="errors" role="alert">
+		<p class="errors__title">{{#if formError}}{{formError}}{{else}}Please fix the following{{/if}}</p>
+		<ul class="errors__list">
+			{{#each errors}}
+				<li>
+					{{#if this.field}}<code>{{this.field}}</code> — {{/if}}
+					{{this.message}}
+				</li>
+			{{/each}}
+		</ul>
+	</div>
+{{/if}}

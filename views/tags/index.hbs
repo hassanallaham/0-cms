@@ -1,0 +1,43 @@
+{{> page-head
+	heading="Tags"
+	subheading="Tags apply to both posts and files. Unknown names typed into a tag field are created on the spot."
+	actions=(array
+		(hash href="/v1/web/tags/new" label="New tag" variant="btn--primary")
+	)
+}}
+
+<form class="filters" method="get" action="/v1/web/tags">
+	<input
+		class="input"
+		type="search"
+		name="q"
+		value="{{query.q}}"
+		placeholder="Search tags"
+		aria-label="Search tags"
+	/>
+	<button class="btn" type="submit">Search</button>
+	<a class="btn btn--ghost" href="/v1/web/tags">Reset</a>
+</form>
+
+{{#if tags.length}}
+	<div class="chips chips--roomy">
+		{{#each tags}}
+			<a class="chip chip--large" href="/v1/web/tags/{{this.id}}">
+				{{this.name}}
+				<span class="chip__count">{{formatNumber this.posts_count}}</span>
+			</a>
+		{{/each}}
+	</div>
+
+	<nav class="pagination" aria-label="Pagination">
+		{{{pagination meta}}}
+	</nav>
+{{else}}
+	<p class="empty">
+		{{#if query.q}}
+			No tags match “{{query.q}}”.
+		{{else}}
+			No tags yet — type one into a post's tag field and it will appear here.
+		{{/if}}
+	</p>
+{{/if}}

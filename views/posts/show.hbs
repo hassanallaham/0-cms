@@ -1,0 +1,170 @@
+{{> page-head
+	heading=post.title
+	subheading=(concat "/" post.slug)
+	actions=(array
+		(hash href=(concat "/v1/web/posts/" post.id "/edit") label="Edit" variant="btn--primary")
+	)
+}}
+
+{{#if post.photo_file}}
+	<figure class="cover">
+		<img src="{{blobUrl post.photo_file.path}}" alt="" loading="lazy" />
+	</figure>
+{{/if}}
+
+<article class="card">
+	<div class="meta-row">
+		{{{statusBadge post.status}}}
+		{{#if post.type}}<a class="chip" href="/v1/web/types/{{post.type.id}}">{{post.type.name}}</a>{{/if}}
+		{{#if post.category}}
+			<a class="chip" href="/v1/web/categories/{{post.category.id}}">{{post.category.name}}</a>
+		{{/if}}
+		<span class="meta-row__spacer"></span>
+		<time datetime="{{post.updated_at}}">Updated {{timeAgo post.updated_at}}</time>
+	</div>
+
+	{{#if post.html}}
+		<div class="prose">{{{post.html}}}</div>
+	{{else}}
+		<p class="empty">This post has no content yet.</p>
+	{{/if}}
+
+	{{#if post.notes}}
+		<details class="notes">
+			<summary>Notes</summary>
+			<pre class="prose-plain">{{post.notes}}</pre>
+		</details>
+	{{/if}}
+</article>
+
+{{!-- Tabs are anchor links (SRS §8.4): the href names the panel it opens, so the
+	open tab is kept in the URL hash and survives a reload. CSS shows one panel at
+	a time, with no script. Each form lives in the panel whose list it feeds. --}}
+<nav class="tabs" aria-label="Post sections">
+	<a class="tabs__link" data-tab="related" href="#related">Related posts</a>
+	<a class="tabs__link" data-tab="files" href="#files">Files</a>
+	<a class="tabs__link" data-tab="referenced" href="#referenced">Posts pointing here</a>
+	<a class="tabs__link" data-tab="tags" href="#tags">Tags</a>
+</nav>
+
+<section class="card tab-panel tab-panel--default" id="related" data-panel="related" tabindex="-1">
+	<h2 class="card__title">Related posts</h2>
+	<p class="hint">Outbound links — posts this one points at.</p>
+	{{#if post.related_posts.length}}
+		<ul class="list">
+			{{#each post.related_posts}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/posts/{{this.id}}">{{this.title}}</a>
+					<form
+						method="post"
+						action="/v1/web/posts/{{../post.id}}/posts/{{this.id}}/unlink"
+						class="inline"
+					>
+						<button class="btn btn--small btn--ghost" type="submit">Unlink</button>
+					</form>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No related posts.</p>
+	{{/if}}
+
+	<form class="inline-form" method="post" action="/v1/web/posts/{{post.id}}/posts">
+		<select class="select" name="to_post" data-picker="posts" data-exclude="{{post.id}}" required>
+			<option value="">Link a post…</option>
+			{{#each options.posts}}
+				<option value="{{this.id}}">{{this.title}}</option>
+			{{/each}}
+		</select>
+		<button class="btn" type="submit">Link post</button>
+	</form>
+</section>
+
+<section class="card tab-panel" id="files" data-panel="files" tabindex="-1">
+	<h2 class="card__title">Attached files</h2>
+	{{#if post.related_files.length}}
+		<ul class="list">
+			{{#each post.related_files}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/files/{{this.id}}">
+						{{this.original_name}}
+					</a>
+					<span class="list__meta">{{formatFileSize this.size}}</span>
+					<form
+						method="post"
+						action="/v1/web/posts/{{../post.id}}/files/{{this.id}}/detach"
+						class="inline"
+					>
+						<button class="btn btn--small btn--ghost" type="submit">Detach</button>
+					</form>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No attached files.</p>
+	{{/if}}
+
+	<form class="inline-form" method="post" action="/v1/web/posts/{{post.id}}/files">
+		<select class="select" name="file" data-picker="files" required>
+			<option value="">Attach a file…</option>
+			{{#each options.files}}
+				<option value="{{this.id}}">{{this.original_name}}</option>
+			{{/each}}
+		</select>
+		<button class="btn" type="submit">Attach file</button>
+	</form>
+</section>
+
+<section class="card tab-panel" id="referenced" data-panel="referenced" tabindex="-1">
+	<h2 class="card__title">Posts pointing here</h2>
+	<p class="hint">Inbound links — posts that point at this one.</p>
+	{{#if post.referenced_posts.length}}
+		<ul class="list">
+			{{#each post.referenced_posts}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/posts/{{this.id}}">{{this.title}}</a>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">Nothing links here yet.</p>
+	{{/if}}
+</section>
+
+<section class="card tab-panel" id="tags" data-panel="tags" tabindex="-1">
+	<h2 class="card__title">Tags</h2>
+	{{#if post.tags.length}}
+		<div class="chips">
+			{{#each post.tags}}
+				<form method="post" action="/v1/web/posts/{{../post.id}}/tags/{{this.id}}/remove" class="inline">
+					<button class="chip chip--removable" type="submit" title="Remove this tag">
+						{{this.name}} <span aria-hidden="true">×</span>
+					</button>
+				</form>
+			{{/each}}
+		</div>
+
+	{{else}}
+		<p class="empty">No tags yet.</p>
+	{{/if}}
+
+	<form class="inline-form" method="post" action="/v1/web/posts/{{post.id}}/tags">
+		<select class="select" name="tag" data-picker="tags" required>
+			<option value="">Add a tag…</option>
+			{{#each options.tags}}
+				<option value="{{this.id}}">{{this.name}}</option>
+			{{/each}}
+		</select>
+		<button class="btn" type="submit">Add</button>
+	</form>
+</section>
+
+<form
+	class="form card card--danger"
+	method="post"
+	action="/v1/web/posts/{{post.id}}/delete"
+>
+	<h2 class="card__title">Delete this post</h2>
+	<button class="btn btn--danger" type="submit">Delete post</button>
+	<a class="btn btn--ghost" href="/v1/web/posts">Back to posts</a>
+</form>

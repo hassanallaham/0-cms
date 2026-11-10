@@ -1,0 +1,53 @@
+{{> page-head
+	heading="Types"
+	subheading="Types decide how a post's content is rendered."
+	actions=(array
+		(hash href="/v1/web/types/new" label="New type" variant="btn--primary")
+	)
+}}
+
+<div class="notice">
+	Types listed under <code>MARKDOWN_TYPES</code> (<code>{{join markdownTypes ", "}}</code>) have
+	their content parsed as Markdown. Every other type is shown as escaped plain
+	text, which is what you want for logs and source listings.
+</div>
+
+{{#if types.length}}
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Slug</th>
+				<th>Rendering</th>
+				<th>Posts</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each types}}
+				<tr>
+					<td>
+						<a class="table__title" href="/v1/web/types/{{this.id}}">
+							{{this.name}}
+						</a>
+					</td>
+					<td><code>{{this.slug}}</code></td>
+					<td>
+						{{#if (includes markdownTypes this.slug)}}
+							{{badge "Markdown" "info"}}
+						{{else}}
+							{{badge "Plain text" "neutral"}}
+						{{/if}}
+					</td>
+					<td>{{formatNumber this.posts}}</td>
+					<td class="table__actions">
+						<a class="btn btn--ghost btn--small" href="/v1/web/types/{{this.id}}/edit">
+							Edit
+						</a>
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+{{else}}
+	<p class="empty">No types found. Run <code>npm run db:seed</code>.</p>
+{{/if}}

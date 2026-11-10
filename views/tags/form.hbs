@@ -1,0 +1,44 @@
+{{> page-head
+	heading=title
+	subheading="Tag names are unique and case-insensitive."
+}}
+
+{{> form-errors}}
+
+<form
+	class="form card"
+	method="post"
+	action="{{#if values.id}}/v1/web/tags/{{values.id}}{{else}}/v1/web/tags{{/if}}"
+>
+	<div class="field">
+		<label class="label" for="f-name">Name</label>
+		<input
+			class="input"
+			id="f-name"
+			name="name"
+			value="{{values.name}}"
+			required
+			maxlength="160"
+			autofocus
+		/>
+		<p class="hint">Changing it regenerates the slug.</p>
+	</div>
+
+	<div class="form-actions">
+		<button class="btn btn--primary" type="submit">
+			{{#if values.id}}Save changes{{else}}Create tag{{/if}}
+		</button>
+		<a class="btn btn--ghost" href="/v1/web/tags">Cancel</a>
+	</div>
+</form>
+
+{{#if values.id}}
+	<form class="form card card--danger" method="post" action="/v1/web/tags/{{values.id}}/delete">
+		<h2 class="card__title">Delete this tag</h2>
+		<p class="hint">
+			The tag is removed from every post and file that carries it.
+		</p>
+		<button class="btn btn--danger" type="submit">Delete tag</button>
+		<a class="btn btn--ghost" href="/v1/web/tags/{{values.id}}">Cancel</a>
+	</form>
+{{/if}}

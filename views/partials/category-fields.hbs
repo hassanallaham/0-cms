@@ -1,0 +1,47 @@
+<div class="field">
+	<label class="label" for="f-name">Name</label>
+	<input
+		class="input"
+		id="f-name"
+		name="name"
+		value="{{values.name}}"
+		required
+		maxlength="160"
+		autofocus
+	/>
+	<p class="hint">Unique across categories. Changing it changes the URL slug.</p>
+</div>
+
+<div class="field">
+	<label class="label" for="f-description">Description</label>
+	<textarea
+		class="input"
+		id="f-description"
+		name="description"
+		rows="4"
+		maxlength="2000"
+	>{{values.description}}</textarea>
+</div>
+
+<div class="field">
+	<label class="label" for="f-parent">Parent category</label>
+	<select class="select" id="f-parent" name="mother_category" data-picker="categories">
+		<option value="">— No parent (top level) —</option>
+		{{#each parents}}
+			<option value="{{this.id}}" {{selected this.id values.mother_category}}>
+				{{this.name}}
+			</option>
+		{{/each}}
+	</select>
+	<p class="hint">
+		A category cannot be moved under itself or under one of its own
+		sub-categories.
+	</p>
+</div>
+
+<div class="form-actions">
+	<button class="btn btn--primary" type="submit">
+		{{#if values.id}}Save changes{{else}}Create category{{/if}}
+	</button>
+	<a class="btn btn--ghost" href="/v1/web/categories">Cancel</a>
+</div>

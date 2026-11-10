@@ -1,0 +1,31 @@
+{{> page-head
+	heading=title
+	subheading="Content renders according to the type: Markdown types are parsed, everything else is shown as plain text."
+}}
+
+{{> form-errors}}
+
+<form
+	class="form card"
+	method="post"
+	action="{{#if values.id}}/v1/web/posts/{{values.id}}{{else}}/v1/web/posts{{/if}}"
+	enctype="multipart/form-data"
+>
+	{{> post-fields}}
+</form>
+
+{{#if values.id}}
+	<form
+		class="form card card--danger"
+		method="post"
+		action="/v1/web/posts/{{values.id}}/delete"
+	>
+		<h2 class="card__title">Delete this post</h2>
+		<p class="hint">
+			The post and its relation rows are removed. The cover image, if any, stays
+			in the file library because it may be referenced elsewhere.
+		</p>
+		<button class="btn btn--danger" type="submit">Delete post</button>
+		<a class="btn btn--ghost" href="/v1/web/posts/{{values.id}}">Cancel</a>
+	</form>
+{{/if}}

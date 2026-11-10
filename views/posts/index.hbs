@@ -1,0 +1,91 @@
+{{> page-head
+	heading="Posts"
+	subheading="Every post in the library."
+	actions=(array
+		(hash href="/v1/web/posts/new" label="New post" variant="btn--primary")
+	)
+}}
+
+<form class="filters" method="get" action="/v1/web/posts">
+	<input
+		class="input"
+		type="search"
+		name="q"
+		value="{{query.q}}"
+		placeholder="Search titles and notes"
+		aria-label="Search posts"
+	/>
+
+	<select class="select" name="status" aria-label="Status">
+		<option value="">All statuses</option>
+		{{#each statuses}}
+			<option value="{{this}}" {{selected this ../statusFilter}}>{{statusLabel this}}</option>
+		{{/each}}
+	</select>
+
+	<select class="select" name="sort" aria-label="Sort order">
+		<option value="">Default order</option>
+		{{#each sortOptions}}
+			<option value="{{this.value}}" {{selected this.value ../query.sort}}>
+				{{this.label}}
+			</option>
+		{{/each}}
+	</select>
+
+	<button class="btn" type="submit">Filter</button>
+	<a class="btn btn--ghost" href="/v1/web/posts">Reset</a>
+</form>
+
+{{#if posts.length}}
+	<table class="table">
+		<thead>
+			<tr>
+				<th><a href="{{sortUrl "title"}}">Title {{sortIndicator "title"}}</a></th>
+				<th><a href="{{sortUrl "status"}}">Status</a></th>
+				<th>Type</th>
+				<th>Category</th>
+				<th><a href="{{sortUrl "created_at"}}">Created</a></th>
+				<th><a href="{{sortUrl "updated_at"}}">Updated</a></th>
+				<th class="table__actions">Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each posts}}
+				<tr>
+					<td>
+						<a class="table__title" href="/v1/web/posts/{{this.id}}">
+							{{this.title}}
+						</a>
+						<span class="table__sub"><code>/{{this.slug}}</code></span>
+					</td>
+					<td>{{{statusBadge this.status}}}</td>
+					<td>{{defaultValue this.type_name "—"}}</td>
+					<td>{{defaultValue this.category_name "—"}}</td>
+					<td><time datetime="{{this.created_at}}">{{formatDate this.created_at}}</time></td>
+					<td><time datetime="{{this.updated_at}}">{{timeAgo this.updated_at}}</time></td>
+					<td class="table__actions">
+						<a class="btn btn--small" href="/v1/web/posts/{{this.id}}">Open</a>
+						<a
+							class="btn btn--small"
+							href="/v1/web/posts/{{this.id}}/edit"
+						>Edit</a>
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+
+	<nav class="pagination" aria-label="Pagination">
+		{{{pagination meta}}}
+	</nav>
+{{else}}
+	<p class="empty">
+		{{#if query.q}}
+			No posts match “{{query.q}}”.
+			<a class="link" href="/v1/web/posts">Clear the search.</a>
+		{{else}}
+			No posts yet.
+			<a class="link" href="/v1/web/posts/new">Write the first one.</a>
+		{{/if}}
+	</p>
+{{/if}}

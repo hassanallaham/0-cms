@@ -1,0 +1,38 @@
+{{> page-head
+	heading="Upload files"
+	subheading="Files are hashed and stored under a UUID name; duplicates are detected automatically."
+}}
+
+<div class="notice">
+	Up to <strong>{{maxMb}} MB</strong> per file. Allowed types:
+	<code>{{join allowedMime ", "}}</code>. A file whose bytes are already in the
+	library reuses the existing record instead of storing a second copy.
+</div>
+
+<form
+	class="form card"
+	method="post"
+	action="/v1/web/files"
+	enctype="multipart/form-data"
+>
+	<div class="field">
+		<label class="label" for="f-files">Choose files</label>
+		<input class="input" type="file" id="f-files" name="files" multiple required />
+		<p class="hint">Several files at once is fine; each is stored independently.</p>
+	</div>
+
+	<div class="field">
+		<label class="label" for="f-category">Category (optional)</label>
+		<select class="select" id="f-category" name="category" data-picker="categories">
+			<option value="">— No category —</option>
+			{{#each categories}}
+				<option value="{{this.id}}">{{this.name}}</option>
+			{{/each}}
+		</select>
+	</div>
+
+	<div class="form-actions">
+		<button class="btn btn--primary" type="submit">Upload</button>
+		<a class="btn btn--ghost" href="/v1/web/files">Cancel</a>
+	</div>
+</form>

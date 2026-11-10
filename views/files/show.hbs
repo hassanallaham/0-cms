@@ -1,0 +1,211 @@
+{{> page-head
+	heading=file.original_name
+	subheading=(concat "File #" file.id)
+	actions=(array
+		(hash href=file.url label="Open raw" variant="btn--primary")
+	)
+}}
+
+<section class="stats stats--compact">
+	<span class="stat">
+		<span class="stat__value">{{formatFileSize file.size}}</span>
+		<span class="stat__label">Size</span>
+	</span>
+	<span class="stat">
+		<span class="stat__value">{{mimeLabel file.mimetype}}</span>
+		<span class="stat__label">Type</span>
+	</span>
+	<span class="stat">
+		<span class="stat__value">{{formatNumber file.counts.posts}}</span>
+		<span class="stat__label">Posts</span>
+	</span>
+	<span class="stat">
+		<span class="stat__value">{{formatNumber file.counts.files}}</span>
+		<span class="stat__label">Linked files</span>
+	</span>
+</section>
+
+{{#if (isImage file.mimetype)}}
+	<figure class="cover">
+		<img src="{{file.url}}" alt="{{file.original_name}}" />
+	</figure>
+{{/if}}
+
+{{!-- Tabs are anchor links (SRS §8.4): the href names the panel it opens, so the
+	open tab is kept in the URL hash and survives a reload. CSS shows one panel at
+	a time, with no script. Each form lives in the panel whose list it feeds. --}}
+<nav class="tabs" aria-label="File sections">
+	<a class="tabs__link" data-tab="preview" href="#preview">Preview</a>
+	<a class="tabs__link" data-tab="related-files" href="#related-files">Related files</a>
+	<a class="tabs__link" data-tab="posts" href="#posts">Posts</a>
+	<a class="tabs__link" data-tab="referenced-files" href="#referenced-files">Files pointing here</a>
+	<a class="tabs__link" data-tab="tags" href="#tags">Tags</a>
+</nav>
+
+<section class="card tab-panel tab-panel--default" id="preview" data-panel="preview" tabindex="-1">
+	<h2 class="card__title">Details</h2>
+		<dl class="facts">
+			<dt>Original name</dt>
+			<dd>{{file.original_name}}</dd>
+			<dt>Stored as</dt>
+			<dd><code>{{file.stored_name}}</code></dd>
+			<dt>Path</dt>
+			<dd><code>{{file.path}}</code></dd>
+			<dt>SHA-256</dt>
+			<dd><code class="hash">{{file.hash}}</code></dd>
+			<dt>Category</dt>
+			<dd>
+				{{#if file.category}}
+					<a class="link" href="/v1/web/categories/{{file.category.id}}">
+						{{file.category.name}}
+					</a>
+				{{else}}
+					—
+				{{/if}}
+			</dd>
+			<dt>Uploaded</dt>
+			<dd><time datetime="{{file.created_at}}">{{formatDateTime file.created_at}}</time></dd>
+		</dl>
+
+		<form class="inline-form" method="post" action="/v1/web/files/{{file.id}}">
+			<input type="hidden" name="_method" value="PATCH" />
+			<label class="label" for="f-move">Move to category</label>
+			<select class="select" id="f-move" name="category" data-picker="categories">
+				<option value="">— No category —</option>
+				{{#each categories}}
+					<option
+						value="{{this.id}}"
+						{{#if (eq this.id ../file.category.id)}}selected{{/if}}
+					>
+						{{this.name}}
+					</option>
+				{{/each}}
+			</select>
+			<button class="btn" type="submit">Save</button>
+		</form>
+</section>
+
+<section class="card tab-panel" id="posts" data-panel="posts" tabindex="-1">
+	<h2 class="card__title">Posts</h2>
+	{{#if file.related_posts.length}}
+		<ul class="list">
+			{{#each file.related_posts}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/posts/{{this.id}}">{{this.title}}</a>
+					<form
+						method="post"
+						action="/v1/web/files/{{../file.id}}/posts/{{this.id}}/detach"
+						class="inline"
+					>
+						<button class="btn btn--small btn--ghost" type="submit">Detach</button>
+					</form>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No post has this file attached.</p>
+	{{/if}}
+
+	<form class="inline-form" method="post" action="/v1/web/files/{{file.id}}/posts">
+		<select class="select" name="post" data-picker="posts" required>
+			<option value="">Attach to a post…</option>
+			{{#each options.posts}}
+				<option value="{{this.id}}">{{this.title}}</option>
+			{{/each}}
+		</select>
+		<button class="btn" type="submit">Attach</button>
+	</form>
+</section>
+
+<section class="card tab-panel" id="related-files" data-panel="related-files" tabindex="-1">
+	<h2 class="card__title">Related files</h2>
+	<p class="hint">Outbound links — files this one points at.</p>
+	{{#if file.related_files.length}}
+		<ul class="list">
+			{{#each file.related_files}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/files/{{this.id}}">{{this.original_name}}</a>
+					<span class="list__meta">{{formatFileSize this.size}}</span>
+					<form
+						method="post"
+						action="/v1/web/files/{{../file.id}}/files/{{this.id}}/unlink"
+						class="inline"
+					>
+						<button class="btn btn--small btn--ghost" type="submit">Unlink</button>
+					</form>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No related files.</p>
+	{{/if}}
+	<form class="inline-form" method="post" action="/v1/web/files/{{file.id}}/files">
+		<label class="label" for="f-to-file">Link to a file</label>
+		<select class="select" name="to_file" data-picker="files" data-exclude="{{file.id}}" required>
+			<option value="">Link a file…</option>
+			{{#each options.files}}
+				<option value="{{this.id}}">{{this.original_name}}</option>
+			{{/each}}
+		</select>
+		<button class="btn" type="submit">Link file</button>
+	</form>
+</section>
+
+<section class="card tab-panel" id="referenced-files" data-panel="referenced-files" tabindex="-1">
+	<h2 class="card__title">Files pointing here</h2>
+	<p class="hint">Inbound links — files that point at this one.</p>
+	{{#if file.referenced_files.length}}
+		<ul class="list">
+			{{#each file.referenced_files}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/files/{{this.id}}">{{this.original_name}}</a>
+					<span class="list__meta">{{formatFileSize this.size}}</span>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No other file links here.</p>
+	{{/if}}
+</section>
+
+
+<section class="card tab-panel" id="tags" data-panel="tags" tabindex="-1">
+<h2 class="card__title">Tags</h2>
+	{{#if tags.length}}
+		<div class="chips">
+			{{#each tags}}
+				<form
+					method="post"
+					action="/v1/web/files/{{../file.id}}/tags/{{this.id}}/remove"
+					class="inline"
+				>
+					<button class="chip chip--removable" type="submit">
+						{{this.name}} <span aria-hidden="true">×</span>
+					</button>
+				</form>
+			{{/each}}
+		</div>
+	{{else}}
+		<p class="empty">No tags.</p>
+	{{/if}}
+
+	<form class="inline-form" method="post" action="/v1/web/files/{{file.id}}/tags">
+		<select class="select" name="tags" data-picker="tags" required>
+			<option value="">Add a tag…</option>
+			{{#each options.tags}}
+				<option value="{{this.name}}">{{this.name}}</option>
+			{{/each}}
+		</select>
+		<button class="btn" type="submit">Add</button>
+	</form>
+</section>
+
+<form class="form card card--danger" method="post" action="/v1/web/files/{{file.id}}/delete">
+	<h2 class="card__title">Delete this file</h2>
+	<p class="hint">
+		Removes the row and the blob from disk. Refused while a post, tag or link
+		still references it.
+	</p>
+	<button class="btn btn--danger" type="submit">Delete file</button>
+	<a class="btn btn--ghost" href="/v1/web/files">Back to library</a>
+</form>

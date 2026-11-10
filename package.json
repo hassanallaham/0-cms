@@ -1,0 +1,56 @@
+{
+	"name": "0-cms",
+	"version": "0.0.1",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "node --watch ./bin/www",
+		"start": "node ./bin/www",
+		"db:migrate": "knex migrate:latest",
+		"db:rollback": "knex migrate:rollback",
+		"db:seed": "knex seed:run",
+		"db:reset": "node bin/reset-db.js && npm run db:migrate && npm run db:seed",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"keywords": [],
+	"author": "Hassan Allaham <hassanallaham@hotmail.com>",
+	"license": "ISC",
+	"type": "module",
+	"dependencies": {
+		"@handlebars/allow-prototype-access": "1.0.5",
+		"bcryptjs": "3.0.3",
+		"better-sqlite3": "13.0.3",
+		"compression": "1.8.2",
+		"cookie-parser": "1.4.7",
+		"cors": "2.8.6",
+		"dotenv": "18.0.8",
+		"express": "5.3.0",
+		"express-handlebars": "9.0.2",
+		"express-rate-limit": "8.7.1",
+		"express-validator": "7.3.2",
+		"handlebars": "4.7.10",
+		"helmet": "8.3.0",
+		"jsonwebtoken": "9.0.3",
+		"knex": "3.3.0",
+		"knex-schema-inspector": "3.1.0",
+		"marked": "18.1.1",
+		"method-override": "3.0.0",
+		"mime-types": "3.0.2",
+		"morgan": "1.12.1",
+		"multer": "2.4.0",
+		"nodemailer": "10.1.7",
+		"object-hash": "3.0.0",
+		"pino": "10.4.0",
+		"pino-http": "11.0.0",
+		"slugify": "1.6.9",
+		"xss-clean": "0.1.4",
+		"zod": "4.6.7"
+	},
+	"allowScripts": {
+		"better-sqlite3@13.0.3": true
+	},
+	"devDependencies": {
+		"pino-pretty": "13.2.0"
+	}
+}

@@ -1,0 +1,101 @@
+/**
+ * @file Server bootstrap.
+ *
+ * Responsibilities, in order: verify the environment, make sure the storage
+ * layout exists and no interrupted upload is left readable, open the database,
+ * then listen. Shutdown is graceful so an in-flight render is not truncated.
+ *
+ * @module bin/www
+ */
+
+import http from "node:http";
+
+import app from "../app.js";
+import { config } from "../config/index.js";
+import { logger } from "../utils/logger.js";
+import { db } from "../db/knex.js";
+import { ensureStorageLayout, purgeTemp } from "../utils/storage.js";
+
+const server = http.createServer(app);
+
+server.on("listening", () => {
+	const address = server.address();
+	const port =
+		typeof address === "object" && address ? address.port : config.app.port;
+	logger.info(`0-CMS listening on ${config.app.url} (port ${port})`);
+});
+
+server.on("error", (err) => {
+	if (err.code === "EADDRINUSE") {
+		logger.fatal(
+			`Port ${config.app.port} is already in use. Set PORT in .env and try again.`,
+		);
+		process.exit(1);
+	}
+	logger.fatal({ err }, "Server error");
+	process.exit(1);
+});
+
+/**
+ * Close the HTTP server and the database, then exit.
+ *
+ * @param {string} signal
+ * @returns {Promise<void>}
+ */
+async function shutdown(signal) {
+	logger.info(`${signal} received, shutting down`);
+
+	// Stop accepting new connections, then finish what is in flight.
+	await new Promise((resolvePromise) => server.close(() => resolvePromise()));
+	await db.destroy();
+
+	logger.info("Shutdown complete");
+	process.exit(0);
+}
+
+for (const signal of ["SIGINT", "SIGTERM"]) {
+	process.on(signal, () => {
+		shutdown(signal).catch((err) => {
+			logger.error({ err }, "Shutdown failed");
+			process.exit(1);
+		});
+	});
+}
+
+process.on("unhandledRejection", (reason) => {
+	logger.error({ err: reason }, "Unhandled promise rejection");
+});
+
+/**
+ * Prepare the filesystem and database, then start listening.
+ *
+ * @returns {Promise<void>}
+ */
+async function start() {
+	await ensureStorageLayout();
+
+	const discarded = await purgeTemp();
+	if (discarded > 0) {
+		logger.warn(
+			`Discarded ${discarded} unfinished upload(s) from the temp directory`,
+		);
+	}
+
+	// Fail fast and loudly if the schema has not been migrated.
+	const hasPosts = await db.schema.hasTable("posts");
+	if (!hasPosts) {
+		logger.fatal(
+			"No schema found. Run `npm run db:migrate` (and `npm run db:seed`) first.",
+		);
+		process.exit(1);
+	}
+
+	server.listen(config.app.port);
+}
+
+start().catch((err) => {
+	logger.fatal({ err }, "Could not start");
+	process.exit(1);
+});
+
+export default server;

@@ -1,0 +1,117 @@
+{{> page-head
+	heading="Dashboard"
+	subheading="Everything in the library, at a glance."
+	actions=(array
+		(hash href="/v1/web/posts/new" label="New post" variant="btn--primary")
+		(hash href="/v1/web/files/new" label="Upload files")
+	)
+}}
+
+<section class="stats">
+	<a class="stat" href="/v1/web/posts">
+		<span class="stat__value">{{formatNumber counts.posts}}</span>
+		<span class="stat__label">Posts</span>
+	</a>
+	<a class="stat" href="/v1/web/posts?status=draft">
+		<span class="stat__value">{{formatNumber posts_by_status.draft}}</span>
+		<span class="stat__label">Drafts</span>
+	</a>
+	<a class="stat" href="/v1/web/posts?status=needs_work">
+		<span class="stat__value">{{formatNumber posts_by_status.needs_work}}</span>
+		<span class="stat__label">Needs work</span>
+	</a>
+	<a class="stat" href="/v1/web/posts?status=published">
+		<span class="stat__value">{{formatNumber posts_by_status.published}}</span>
+		<span class="stat__label">Published</span>
+	</a>
+	<a class="stat" href="/v1/web/categories">
+		<span class="stat__value">{{formatNumber counts.categories}}</span>
+		<span class="stat__label">Categories</span>
+	</a>
+	<a class="stat" href="/v1/web/tags">
+		<span class="stat__value">{{formatNumber counts.tags}}</span>
+		<span class="stat__label">Tags</span>
+	</a>
+	<a class="stat" href="/v1/web/files">
+		<span class="stat__value">{{formatNumber counts.files}}</span>
+		<span class="stat__label">Files</span>
+	</a>
+</section>
+
+{{#if counts.orphaned_blobs}}
+	<div class="notice notice--warning">
+		<strong>{{counts.orphaned_blobs}} orphaned blob(s)</strong> on disk with no row
+		pointing at them — leftovers from an upload that was interrupted. They are
+		harmless but count against disk space.
+	</div>
+{{/if}}
+
+<div class="grid grid--2">
+	<section class="card">
+		<div class="card__head">
+			<h2 class="card__title">Recently updated</h2>
+			<a class="link" href="/v1/web/posts">All posts →</a>
+		</div>
+
+		{{#if recent_posts.length}}
+			<ul class="list">
+				{{#each recent_posts}}
+					<li class="list__item">
+						<a class="list__title" href="/v1/web/posts/{{this.id}}">
+							{{this.title}}
+						</a>
+						<span class="list__meta">
+							<code>/{{this.slug}}</code>
+						</span>
+					</li>
+				{{/each}}
+			</ul>
+		{{else}}
+			<p class="empty">
+				No posts yet.
+				<a class="link" href="/v1/web/posts/new">Write the first one.</a>
+			</p>
+		{{/if}}
+	</section>
+
+	<section class="card">
+		<div class="card__head">
+			<h2 class="card__title">Recent files</h2>
+			<a class="link" href="/v1/web/files">Library →</a>
+		</div>
+
+		{{#if recent_files.length}}
+			<ul class="list">
+				{{#each recent_files}}
+					<li class="list__item">
+						<a class="list__title" href="/v1/web/files/{{this.id}}">
+							{{this.original_name}}
+						</a>
+						<span class="list__meta">
+							{{formatFileSize this.size}} · {{mimeLabel this.mimetype}}
+						</span>
+					</li>
+				{{/each}}
+			</ul>
+		{{else}}
+			<p class="empty">
+				Nothing uploaded yet.
+				<a class="link" href="/v1/web/files/new">Upload something.</a>
+			</p>
+		{{/if}}
+	</section>
+</div>
+
+<section class="card">
+	<h2 class="card__title">Configuration</h2>
+	<dl class="facts">
+		<dt>Markdown types</dt>
+		<dd><code>{{join config.markdown_types ", "}}</code></dd>
+		<dt>Upload limit</dt>
+		<dd>{{config.upload_max_mb}} MB per file</dd>
+		<dt>Allowed types</dt>
+		<dd>{{join config.allowed_mime ", "}}</dd>
+		<dt>Page size</dt>
+		<dd>{{config.page_size}} per page</dd>
+	</dl>
+</section>

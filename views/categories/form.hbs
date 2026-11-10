@@ -1,0 +1,29 @@
+{{> page-head
+	heading=title
+	subheading="Names are unique. Renaming regenerates the slug."
+}}
+
+{{> form-errors}}
+
+<form
+	class="form card"
+	method="post"
+	action="{{#if values.id}}/v1/web/categories/{{values.id}}{{else}}/v1/web/categories{{/if}}"
+>
+	{{> category-fields}}
+</form>
+
+{{#if values.id}}
+	<form
+		class="form card card--danger"
+		method="post"
+		action="/v1/web/categories/{{values.id}}/delete"
+	>
+		<h2 class="card__title">Delete this category</h2>
+		<p class="hint">
+			Only possible once it has no sub-categories, posts or files.
+		</p>
+		<button class="btn btn--danger" type="submit">Delete category</button>
+		<a class="btn btn--ghost" href="/v1/web/categories/{{values.id}}">Cancel</a>
+	</form>
+{{/if}}

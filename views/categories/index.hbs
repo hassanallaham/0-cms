@@ -1,0 +1,84 @@
+{{> page-head
+	heading="Categories"
+	subheading="A category tree. A category cannot be deleted while anything still points at it."
+	actions=(array
+		(hash href="/v1/web/categories/new" label="New category" variant="btn--primary")
+	)
+}}
+
+<form class="filters" method="get" action="/v1/web/categories">
+	<input
+		class="input"
+		type="search"
+		name="q"
+		value="{{query.q}}"
+		placeholder="Search names and descriptions"
+		aria-label="Search categories"
+	/>
+
+	<select class="select" name="filter[root]" aria-label="Depth">
+		<option value="">All levels</option>
+		<option value="true" {{selected "true" ../filters.root}}>Top level only</option>
+	</select>
+
+	<select class="select" name="sort" aria-label="Sort order">
+		<option value="">Default order</option>
+		{{#each sortOptions}}
+			<option value="{{this.value}}" {{selected this.value ../query.sort}}>
+				{{this.label}}
+			</option>
+		{{/each}}
+	</select>
+
+	<button class="btn" type="submit">Filter</button>
+	<a class="btn btn--ghost" href="/v1/web/categories">Reset</a>
+</form>
+
+{{#if categories.length}}
+	<table class="table">
+		<thead>
+			<tr>
+				<th><a href="{{sortUrl "name"}}">Name {{sortIndicator "name"}}</a></th>
+				<th>Slug</th>
+				<th>Description</th>
+				<th><a href="{{sortUrl "created_at"}}">Created</a></th>
+				<th class="table__actions">Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each categories}}
+				<tr>
+					<td>
+						<a class="table__title" href="/v1/web/categories/{{this.id}}">
+							{{this.name}}
+						</a>
+					</td>
+					<td><code>{{this.slug}}</code></td>
+					<td>{{truncate this.description 80}}</td>
+					<td><time datetime="{{this.created_at}}">{{formatDate this.created_at}}</time></td>
+					<td class="table__actions">
+						<a class="btn btn--small" href="/v1/web/categories/{{this.id}}">Open</a>
+						<a
+							class="btn btn--small"
+							href="/v1/web/categories/{{this.id}}/edit"
+						>Edit</a>
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+
+	<nav class="pagination" aria-label="Pagination">
+		{{{pagination meta}}}
+	</nav>
+{{else}}
+	<p class="empty">
+		{{#if query.q}}
+			No categories match “{{query.q}}”.
+			<a class="link" href="/v1/web/categories">Clear the search.</a>
+		{{else}}
+			No categories yet.
+			<a class="link" href="/v1/web/categories/new">Create the first one.</a>
+		{{/if}}
+	</p>
+{{/if}}

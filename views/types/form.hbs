@@ -1,0 +1,62 @@
+{{> page-head
+	heading=title
+	subheading="A type decides how a post's content is rendered."
+}}
+
+{{> form-errors}}
+
+<form
+	class="form card"
+	method="post"
+	action="{{#if values.id}}/v1/web/types/{{values.id}}{{else}}/v1/web/types{{/if}}"
+>
+	<div class="field">
+		<label class="label" for="f-name">Name</label>
+		<input
+			class="input"
+			id="f-name"
+			name="name"
+			value="{{values.name}}"
+			required
+			maxlength="80"
+			autofocus
+		/>
+		<p class="hint">Names are unique and case-insensitive.</p>
+	</div>
+
+	<div class="field">
+		<label class="label" for="f-slug">Slug</label>
+		<input
+			class="input"
+			id="f-slug"
+			name="slug"
+			value="{{values.slug}}"
+			maxlength="80"
+			placeholder="{{slugify values.name}}"
+		/>
+		<p class="hint">
+			Leave it empty to generate one from the name. A slug listed in
+			<code>MARKDOWN_TYPES</code> is rendered as Markdown; anything else is
+			shown as escaped plain text.
+		</p>
+	</div>
+
+	<div class="form-actions">
+		<button class="btn btn--primary" type="submit">
+			{{#if values.id}}Save changes{{else}}Create type{{/if}}
+		</button>
+		<a class="btn btn--ghost" href="/v1/web/types">Cancel</a>
+	</div>
+</form>
+
+{{#if values.id}}
+	<form class="form card card--danger" method="post" action="/v1/web/types/{{values.id}}/delete">
+		<h2 class="card__title">Delete this type</h2>
+		<p class="hint">
+			Refused while any post uses it, and refused for a slug listed in
+			<code>MARKDOWN_TYPES</code>.
+		</p>
+		<button class="btn btn--danger" type="submit">Delete type</button>
+		<a class="btn btn--ghost" href="/v1/web/types/{{values.id}}">Cancel</a>
+	</form>
+{{/if}}

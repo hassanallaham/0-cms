@@ -1,0 +1,21 @@
+{{#if flash}}
+	<div class="toast-stack" role="status" aria-live="polite">
+		{{#each flash}}
+			<div class="toast toast--{{type}}" data-toast>
+				<span class="toast__icon">
+					{{#if (eq type "success")}}{{icon "check"}}{{/if}}
+					{{#if (eq type "error")}}{{icon "alert-triangle"}}{{/if}}
+					{{#if (eq type "warning")}}{{icon "alert-triangle"}}{{/if}}
+					{{#if (eq type "info")}}{{icon "info"}}{{/if}}
+				</span>
+				<span class="toast__msg">{{message}}</span>
+				<button
+					type="button"
+					class="toast__close"
+					data-toast-close
+					aria-label="Dismiss"
+				>{{icon "close"}}</button>
+			</div>
+		{{/each}}
+	</div>
+{{/if}}

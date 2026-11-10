@@ -1,0 +1,23 @@
+<div class="page-head">
+	<div>
+		<h1 class="page-head__title">{{statusCode}}</h1>
+		<p class="page-head__sub">{{code}}</p>
+	</div>
+</div>
+
+<section class="card">
+	<p>{{message}}</p>
+
+	{{#if details.length}}
+		<ul class="errors__list">
+			{{#each details}}
+				<li>
+					{{#if this.field}}<code>{{this.field}}</code> — {{/if}}
+					{{this.message}}
+				</li>
+			{{/each}}
+		</ul>
+	{{/if}}
+
+	<a class="btn btn--primary" href="/v1/web">Back to the dashboard</a>
+</section>

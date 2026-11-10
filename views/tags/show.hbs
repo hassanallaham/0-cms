@@ -1,0 +1,65 @@
+{{> page-head
+	heading=tag.name
+	subheading=(concat "/" tag.slug)
+	actions=(array
+		(hash href=(concat "/v1/web/tags/" tag.id "/edit") label="Edit" variant="btn--primary")
+	)
+}}
+
+<section class="stats stats--compact">
+	<span class="stat">
+		<span class="stat__value">{{formatNumber tag.counts.posts}}</span>
+		<span class="stat__label">Posts</span>
+	</span>
+	<span class="stat">
+		<span class="stat__value">{{formatNumber tag.counts.files}}</span>
+		<span class="stat__label">Files</span>
+	</span>
+</section>
+
+{{!-- Tabs are anchor links (SRS §8.4): the href names the panel it opens, so the
+	open tab is kept in the URL hash and survives a reload. --}}
+<nav class="tabs" aria-label="Tag sections">
+	<a class="tabs__link" data-tab="posts" href="#posts">Posts</a>
+	<a class="tabs__link" data-tab="files" href="#files">Files</a>
+</nav>
+
+<section class="card tab-panel tab-panel--default" id="posts" data-panel="posts" tabindex="-1">
+	<h2 class="card__title">Posts</h2>
+	{{#if posts.length}}
+		<ul class="list">
+			{{#each posts}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/posts/{{this.id}}">{{this.title}}</a>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No posts carry this tag.</p>
+	{{/if}}
+</section>
+
+<section class="card tab-panel" id="files" data-panel="files" tabindex="-1">
+	<h2 class="card__title">Files</h2>
+	{{#if files.length}}
+		<ul class="list">
+			{{#each files}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/files/{{this.id}}">
+						{{this.original_name}}
+					</a>
+					<span class="list__meta">{{formatFileSize this.size}}</span>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No files carry this tag.</p>
+	{{/if}}
+</section>
+
+<form class="form card card--danger" method="post" action="/v1/web/tags/{{tag.id}}/delete">
+	<h2 class="card__title">Delete this tag</h2>
+	<p class="hint">Removes the tag. Its posts and files stay.</p>
+	<button class="btn btn--danger" type="submit">Delete tag</button>
+	<a class="btn btn--ghost" href="/v1/web/tags">Back to tags</a>
+</form>

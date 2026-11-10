@@ -1,0 +1,32 @@
+<div class="page-head">
+	<div>
+		<h1 class="page-head__title">{{heading}}</h1>
+		{{#if subheading}}<p class="page-head__sub">{{subheading}}</p>{{/if}}
+	</div>
+
+	{{#if actions}}
+		<div class="page-head__actions">
+			{{#each actions}}
+				{{#if this.method}}
+					{{!-- A destructive action needs a real POST, so it is rendered as a
+					     one-button form rather than a link the browser would GET. --}}
+					<form method="post" action="{{this.href}}">
+						<button
+							class="btn {{defaultValue this.variant ""}}"
+							type="submit"
+							{{#if this.confirm}}data-confirm="{{this.confirm}}"{{/if}}
+						>
+							{{this.label}}
+						</button>
+					</form>
+				{{else}}
+					<a
+						class="btn {{defaultValue this.variant ""}}"
+						href="{{this.href}}"
+						{{#if this.title}}title="{{this.title}}"{{/if}}
+					>{{this.label}}</a>
+				{{/if}}
+			{{/each}}
+		</div>
+	{{/if}}
+</div>

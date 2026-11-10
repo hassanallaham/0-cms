@@ -1,0 +1,24 @@
+<nav class="sidebar" id="sidebar" aria-label="Sections">
+	<ul class="sidebar__list">
+		{{#each navItems}}
+			<li>
+				<a
+					class="sidebar__link {{#if (eq this.key ../activeNav)}}is-active{{/if}}"
+					href="{{this.href}}"
+					{{#if (eq this.key ../activeNav)}}aria-current="page"{{/if}}
+				>
+					{{{icon this.icon}}}
+					<span>{{this.label}}</span>
+					{{#if this.count}}<span class="badge">{{this.count}}</span>{{/if}}
+				</a>
+			</li>
+		{{/each}}
+	</ul>
+
+	<div class="sidebar__footer">
+		<a href="/v1/json/health" class="sidebar__link sidebar__link--muted">
+			{{{icon "settings"}}}
+			<span>JSON API</span>
+		</a>
+	</div>
+</nav>

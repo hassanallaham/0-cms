@@ -1,0 +1,80 @@
+{{> page-head
+	heading="Files"
+	subheading="Content-addressed library: uploading the same bytes twice reuses the same file."
+	actions=(array
+		(hash href="/v1/web/files/new" label="Upload" variant="btn--primary")
+	)
+}}
+
+<form class="filters" method="get" action="/v1/web/files">
+	<input
+		class="input"
+		type="search"
+		name="q"
+		value="{{query.q}}"
+		placeholder="Search names and types"
+		aria-label="Search files"
+	/>
+
+	<select class="select" name="filter[mimetype]" aria-label="MIME type">
+		<option value="">All types</option>
+		{{#each allowedMime}}
+			<option value="{{this}}" {{selected this ../filters.mimetype}}>{{this}}</option>
+		{{/each}}
+	</select>
+
+	<select class="select" name="sort" aria-label="Sort order">
+		<option value="">Newest first</option>
+		{{#each sortOptions}}
+			<option value="{{this.value}}" {{selected this.value ../query.sort}}>
+				{{this.label}}
+			</option>
+		{{/each}}
+	</select>
+
+	<button class="btn" type="submit">Filter</button>
+	<a class="btn btn--ghost" href="/v1/web/files">Reset</a>
+</form>
+
+<p class="hint">
+	Up to {{maxMb}} MB per file. Allowed: <code>{{join allowedMime ", "}}</code>.
+</p>
+
+{{#if files.length}}
+	<ul class="files">
+		{{#each files}}
+			<li class="files__item">
+				<a class="files__link" href="/v1/web/files/{{this.id}}">
+					{{#if (isImage this.mimetype)}}
+						<img
+							class="files__thumb"
+							src="{{this.url}}"
+							alt=""
+							loading="lazy"
+						/>
+					{{else}}
+						<span class="files__icon">{{{mimetypeIcon this.mimetype}}}</span>
+					{{/if}}
+					<span class="files__name">{{this.original_name}}</span>
+					<span class="files__meta">
+						{{formatFileSize this.size}} · {{mimeLabel this.mimetype}}
+					</span>
+				</a>
+			</li>
+		{{/each}}
+	</ul>
+
+	<nav class="pagination" aria-label="Pagination">
+		{{{pagination meta}}}
+	</nav>
+{{else}}
+	<p class="empty">
+		{{#if query.q}}
+			No files match “{{query.q}}”.
+			<a class="link" href="/v1/web/files">Clear the search.</a>
+		{{else}}
+			The library is empty.
+			<a class="link" href="/v1/web/files/new">Upload something.</a>
+		{{/if}}
+	</p>
+{{/if}}

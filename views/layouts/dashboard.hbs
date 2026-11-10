@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en" data-theme="{{theme}}">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="{{theme}} light" />
+		<title>{{#if title}}{{title}} · {{/if}}CMS</title>
+		<link rel="stylesheet" href="/stylesheets/main.css" />
+		<script>
+			document.documentElement.classList.add("js");
+		</script>
+		<link
+			rel="icon"
+			href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='14'>📓</text></svg>"
+		/>
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+
+		<header class="topbar">
+			<div class="topbar__start">
+				<button
+					type="button"
+					class="topbar__toggle"
+					data-sidebar-toggle
+					aria-controls="sidebar"
+					aria-expanded="true"
+					aria-label="Collapse sidebar"
+				>
+					{{{icon "menu"}}}
+				</button>
+
+				<a class="brand" href="/v1/web">CMS</a>
+			</div>
+
+			<form class="theme-toggle" method="post" action="/v1/web/theme">
+				<input type="hidden" name="redirect" value="{{currentPath}}" />
+				<button
+					type="submit"
+					name="theme"
+					value="{{oppositeTheme}}"
+					title="{{themeLabel}}"
+					aria-label="{{themeLabel}}"
+				>
+					{{{themeIcon}}}
+					<span>{{themeLabel}}</span>
+				</button>
+			</form>
+		</header>
+
+		<div class="shell" data-sidebar="expanded">
+			{{> sidebar}}
+
+			<main id="main" class="content">
+				{{#if flash.length}}
+					<div class="flashes" role="status" aria-live="polite">
+						{{#each flash}}
+							<div class="flash flash--{{this.type}}">{{this.message}}</div>
+						{{/each}}
+					</div>
+				{{/if}}
+
+				{{{body}}}
+			</main>
+		</div>
+
+		<script src="/javascripts/dashboard.js" defer></script>
+	</body>
+</html>

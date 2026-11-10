@@ -1,0 +1,88 @@
+CMS:
+
+CreateDb(dbName)
+
+
+===================
+* createTable(tableName, pkName, pkType):
+// Check if table name is taken
+
+if (pkType === "integer")
+// * createIntegerPkTable 
+
+if (pkType === "uuid")
+// * createUuidPkTable 
+
+if (pkType === "binaryuuid")
+// * createBinaryPkTable 
+===================
+* renameTable(oldTableName, newTableName)
+// check oldTableName is present
+// check newTableName is NOT taken
+// check any related columns in other tables
+// update relations in any related columns in other tables to the newTableName
+// rename the table
+===================
+* addColumnToTable(tableName, columnName, datatypeAndOtherColumnProps)
+// check tableName is present
+// check columnName is not taken in the table
+// add column to table (if it is fK check related table and column is present and the column is unique and of the same data type)
+===================
+* renameColumn(tableName, oldColumnName, newColumnName)
+// check tableName is present
+// check oldColumnName is present in tableName
+// check newColumnName is not taken in tableName
+// if any other column is related to the oldColumnName update the relation to direct to the newColumnName then
+// rename column
+===================
+* changeColumnProperties(tableName, columnName, newProperties)
+// check oldColumnName is present in tableName
+// if any related column direct to this column make sure to keep datatypes same in (i.e. unique, name, datatype) ?????????
+// change column properties
+
+===================
+* deleteTable(tableName)
+// check tableName is present
+// check any related tables (if present delete relations)
+// delete table
+===================
+* deleteColumn(tableName, columnName)
+// check tableName is present
+// check columnName is present
+// check any related columns (if present delete relations)
+// delete column
+===================
+* createOneToOneRelation(leftTableName, leftColumnName, rightTableName, rightColumnName, on_update, on_delete)
+// check leftTableName is present
+// check leftColumnName is present in leftTableName
+// check rightTableName is present
+// check rightColumnName is present in rightTableName
+// check leftColumnName is unique
+// check rightColumnName is unique ????
+// check leftColumnName datatype ===  rightColumnName datatype
+// create relation
+===================
+* createOneToManyRelation(leftTableName, leftColumnName, rightTableName, rightColumnName, on_update, on_delete)
+// check leftTableName is present
+// check leftColumnName is present in leftTableName
+// check rightTableName is present
+// check rightColumnName is present in rightTableName
+// check leftColumnName is unique
+// check leftColumnName datatype ===  rightColumnName datatype
+// create relation
+===================
+* createManyToManyRelation(leftTableName, leftColumnName, rightTableName, rightColumnName, on_update, on_delete)
+// check leftTableName is present
+// check leftColumnName is present in leftTableName
+// check rightTableName is present
+// check rightColumnName is present in rightTableName
+// create the joint table
+===================
+* deleteRelation
+
+===========
+* add constraint
+===========
+* delete constraint
+
+

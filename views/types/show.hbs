@@ -1,0 +1,45 @@
+{{> page-head
+	heading=type.name
+	subheading=(concat "/" type.slug)
+	actions=(array
+		(hash href=(concat "/v1/web/types/" type.id "/edit") label="Edit type" variant="btn--ghost")
+		(hash
+			href=(concat "/v1/web/types/" type.id "/delete")
+			label="Delete"
+			variant="btn--danger"
+			method="post"
+			confirm="Delete this type?"
+		)
+	)
+}}
+
+<section class="stats stats--compact">
+	<span class="stat">
+		<span class="stat__value">{{formatNumber type.counts.posts}}</span>
+		<span class="stat__label">Posts</span>
+	</span>
+</section>
+
+{{!-- A type has a single tab (SRS §8.4); the panel is marked as the default so
+	the page still shows content when no hash is present. --}}
+<section class="card tab-panel tab-panel--default" id="posts" data-panel="posts" tabindex="-1">
+	<h2 class="card__title">Posts of this type</h2>
+	{{#if posts.length}}
+		<ul class="list">
+			{{#each posts}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/posts/{{this.id}}">{{this.title}}</a>
+					<span class="list__meta">{{timeAgo this.updated_at}}</span>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No posts use this type yet.</p>
+	{{/if}}
+</section>
+
+<nav class="pagination" aria-label="Pagination">
+	{{{pagination meta}}}
+</nav>
+
+<a class="btn btn--ghost" href="/v1/web/types">Back to types</a>

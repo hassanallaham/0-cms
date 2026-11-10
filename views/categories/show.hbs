@@ -1,0 +1,132 @@
+{{> page-head
+	heading=category.name
+	subheading=(concat "/" category.slug)
+	actions=(array
+		(hash href=(concat "/v1/web/categories/" category.id "/edit") label="Edit" variant="btn--primary")
+	)
+}}
+
+{{#if category.ancestors.length}}
+	<nav class="breadcrumb" aria-label="Breadcrumb">
+		<a class="link" href="/v1/web/categories">Categories</a>
+		{{#each category.ancestors}}
+			<span class="breadcrumb__sep" aria-hidden="true">/</span>
+			<a class="link" href="/v1/web/categories/{{this.id}}">{{this.name}}</a>
+		{{/each}}
+		<span class="breadcrumb__sep" aria-hidden="true">/</span>
+		<span aria-current="page">{{category.name}}</span>
+	</nav>
+{{/if}}
+
+<section class="stats stats--compact">
+	<span class="stat">
+		<span class="stat__value">{{formatNumber category.counts.children}}</span>
+		<span class="stat__label">Sub-categories</span>
+	</span>
+	<span class="stat">
+		<span class="stat__value">{{formatNumber category.counts.posts}}</span>
+		<span class="stat__label">Posts</span>
+	</span>
+	<span class="stat">
+		<span class="stat__value">{{formatNumber category.counts.files}}</span>
+		<span class="stat__label">Files</span>
+	</span>
+</section>
+
+{{#if category.description}}
+	<section class="card">
+        <h2 class="card__title">Description:</h2>
+		<p class="prose">{{category.description}}</p>
+	</section>
+{{/if}}
+
+{{#if category.mother_category}}
+	<section class="card">
+        <h2 class="card__title">Mother Category: <a class="list__title" href="/v1/web/categories/{{category.parent.id}}">
+						{{category.parent.name}}
+					</a></h2>
+        
+		<p class="prose">{{category.parent.name}}</p>
+	</section>
+{{/if}}
+
+<section class="card">
+	<div class="card__head">
+		<h2 class="card__title">Sub-categories</h2>
+	</div>
+	{{#if children.length}}
+		<ul class="list">
+			{{#each children}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/categories/{{this.id}}">
+						{{this.name}}
+					</a>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">Nothing nested here yet.</p>
+	{{/if}}
+</section>
+
+{{!-- Tabs are anchor links (SRS §8.4): the href names the panel it opens, so the
+	open tab is kept in the URL hash and survives a reload. The tree above stays
+	visible because it is how the category is navigated, not one of its tabs. --}}
+<nav class="tabs" aria-label="Category sections">
+	<a class="tabs__link" data-tab="posts" href="#posts">Posts</a>
+	<a class="tabs__link" data-tab="files" href="#files">Files</a>
+</nav>
+
+<section class="card tab-panel tab-panel--default" id="posts" data-panel="posts" tabindex="-1">
+	<h2 class="card__title">Posts</h2>
+	{{#if posts.length}}
+		<ul class="list">
+			{{#each posts}}
+				<li class="list__item">
+					<a class="list__title" href="/v1/web/posts/{{this.id}}">{{this.title}}</a>
+					<span class="list__meta">{{timeAgo this.updated_at}}</span>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No posts in this category.</p>
+	{{/if}}
+</section>
+
+<section class="card tab-panel" id="files" data-panel="files" tabindex="-1">
+	<h2 class="card__title">Files</h2>
+	{{#if files.length}}
+		<ul class="files">
+			{{#each files}}
+				<li class="files__item">
+					<a href="/v1/web/files/{{this.id}}" class="files__link">
+						{{#if (isImage this.mimetype)}}
+							<img
+								class="files__thumb"
+								src="{{blobUrl this.path}}"
+								alt=""
+								loading="lazy"
+							/>
+						{{else}}
+							<span class="files__icon">{{{mimetypeIcon this.mimetype}}}</span>
+						{{/if}}
+						<span class="files__name">{{this.original_name}}</span>
+						<span class="files__meta">{{formatFileSize this.size}}</span>
+					</a>
+				</li>
+			{{/each}}
+		</ul>
+	{{else}}
+		<p class="empty">No files in this category.</p>
+	{{/if}}
+</section>
+
+<form
+	class="form card card--danger"
+	method="post"
+	action="/v1/web/categories/{{category.id}}/delete"
+>
+	<h2 class="card__title">Delete this category</h2>
+	<button class="btn btn--danger" type="submit">Delete category</button>
+	<a class="btn btn--ghost" href="/v1/web/categories">Back to categories</a>
+</form>
